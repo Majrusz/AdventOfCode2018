@@ -9,4 +9,6 @@ namespace aoc::day02 {
 	void start();
 
 	size_t getChecksum( const std::vector< std::string > &values );
+
+	std::string getCommonString( const std::vector< std::string > &value2 );
 }
