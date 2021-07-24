@@ -3,4 +3,6 @@ project(AdventOfCode2018)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(AdventOfCode2018 main.cpp)
+include_directories(${CMAKE_SOURCE_DIR})
+
+add_executable(AdventOfCode2018 main.cpp common/file_loader.inl common/file_loader.h tasks/day01/day_01.cpp tasks/day01/day_01.h tasks/all_days.h)

@@ -1,6 +1,7 @@
-#include <iostream>
+#include "tasks/all_days.h"
 
 int main() {
-	std::cout << "Hello, World!" << std::endl;
+	aoc::day01::start();
+
 	return 0;
 }
