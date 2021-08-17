@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 
 namespace aoc::day04 {
 	struct Record {
@@ -16,11 +17,15 @@ namespace aoc::day04 {
 
 	void start();
 
-	size_t getTask1Result( std::vector< Record > records );
+	size_t getTask1Result( const std::vector< Record > &records );
 
 	size_t getGuardIDWithMostAsleepMinutes( const std::vector< Record > &records );
 
+	std::map< int, size_t > getMostAsleepMinutes( const std::vector< Record > &records, size_t guardID );
+
 	int getMostAsleepMinute( const std::vector< Record > &records, size_t guardID );
+
+	size_t getTask2Result( const std::vector< Record > &records );
 }
 
 namespace std {

@@ -4,18 +4,15 @@
 
 #include <algorithm>
 #include <map>
+#include <set>
 #include <sstream>
 
 #include "common/file_loader.h"
 #include "common/zipper.h"
 
 void aoc::day04::start() {
-	std::vector< Record > input{ loadFile< Record >( "day04/input.txt" ) };
+	std::vector< Record > records{ loadFile< Record >( "day04/input.txt" ) };
 
-	std::cout << "Task1 result: " << getTask1Result( input ) << std::endl;
-}
-
-size_t aoc::day04::getTask1Result( std::vector< Record > records ) {
 	std::sort( std::begin( records ), std::end( records ), []( const Record &a, const Record &b ){
 		return a.year < b.year || a.year == b.year && ( a.month < b.month || a.month == b.month && ( a.day < b.day || a.day == b.day && ( a.hour < b.hour || a.hour == b.hour && a.minute < b.minute ) ) );
 	} );
@@ -28,6 +25,11 @@ size_t aoc::day04::getTask1Result( std::vector< Record > records ) {
 			record.guardID = currentGuardID;
 	} );
 
+	std::cout << "Task1 result: " << getTask1Result( records ) << std::endl;
+	std::cout << "Task2 result: " << getTask2Result( records ) << std::endl;
+}
+
+size_t aoc::day04::getTask1Result( const std::vector< Record > &records ) {
 	size_t guardID{ getGuardIDWithMostAsleepMinutes( records ) };
 
 	return getMostAsleepMinute( records, guardID ) * guardID;
@@ -48,9 +50,9 @@ size_t aoc::day04::getGuardIDWithMostAsleepMinutes( const std::vector< Record > 
 	} )->first;
 }
 
-int aoc::day04::getMostAsleepMinute( const std::vector< Record > &records, size_t guardID ) {
+std::map< int, size_t > aoc::day04::getMostAsleepMinutes( const std::vector< Record > &records, size_t guardID ) {
 	std::map< int, size_t > minuteOccurrences{};
-	static auto increaseIndex = [&minuteOccurrences]( int index ){
+	auto increaseIndex = [&minuteOccurrences]( int index ){
 		if( minuteOccurrences.count( index ) > 0 )
 			++minuteOccurrences[ index ];
 		else
@@ -58,8 +60,11 @@ int aoc::day04::getMostAsleepMinute( const std::vector< Record > &records, size_
 	};
 
 	const Record *previousRecord{};
-	std::for_each( std::begin( records ), std::end( records ), [&guardID, &previousRecord]( const Record &record ){
-		if( record.state == Record::State::WAKES_UP && record.guardID == guardID ) {
+	std::for_each( std::begin( records ), std::end( records ), [&]( const Record &record ){
+		if( record.guardID != guardID )
+			return;
+
+		if( record.state == Record::State::WAKES_UP ) {
 			if( record.minute > previousRecord->minute ) {
 				for( int minute{ previousRecord->minute }; minute < record.minute; ++minute )
 					increaseIndex( minute );
@@ -74,9 +79,39 @@ int aoc::day04::getMostAsleepMinute( const std::vector< Record > &records, size_
 		previousRecord = &record;
 	} );
 
+	return minuteOccurrences;
+}
+
+int aoc::day04::getMostAsleepMinute( const std::vector< Record > &records, size_t guardID ) {
+	auto minuteOccurrences{ getMostAsleepMinutes( records, guardID ) };
+
 	return std::max_element( std::begin( minuteOccurrences ), std::end( minuteOccurrences ), []( const auto &a, const auto &b ){
 		return a.second < b.second;
 	} )->first;
+}
+
+size_t aoc::day04::getTask2Result( const std::vector< Record > &records ) {
+	std::set< size_t > guardIDs;
+	std::for_each( std::begin( records ), std::end( records ), [&guardIDs]( const Record &record ){
+		guardIDs.insert( record.guardID );
+	} );
+
+	int mostAsleepMinute{}, mostOccurrences{};
+	size_t mostAsleepGuardID{};
+	std::for_each( std::begin( records ), std::end( records ), [&]( size_t guardID ){
+		auto minuteOccurrences{ getMostAsleepMinutes( records, guardID ) };
+		auto mostAsleepMinutePair{ std::max_element( std::begin( minuteOccurrences ), std::end( minuteOccurrences ), []( const auto &a, const auto &b ){
+			return a.second < b.second;
+		} ) };
+
+		if( mostAsleepMinutePair->second > mostOccurrences ) {
+			mostAsleepMinute = mostAsleepMinutePair->first;
+			mostOccurrences = mostAsleepMinutePair->second;
+			mostAsleepGuardID = guardID;
+		}
+	} );
+
+	return mostAsleepMinute * mostAsleepGuardID;
 }
 
 std::istream &std::operator>>( std::istream &stream, aoc::day04::Record &record ) {
