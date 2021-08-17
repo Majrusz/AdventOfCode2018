@@ -11,12 +11,16 @@ namespace aoc::day04 {
 			BEGINS_SHIFT, FALLS_ASLEEP, WAKES_UP
 		} state;
 		size_t guardID;
-		size_t year, month, day, hour, minute;
+		int year, month, day, hour, minute;
 	};
 
 	void start();
 
-	size_t getTask1Result( const std::vector< Record > &values );
+	size_t getTask1Result( std::vector< Record > records );
+
+	size_t getGuardIDWithMostAsleepMinutes( const std::vector< Record > &records );
+
+	int getMostAsleepMinute( const std::vector< Record > &records, size_t guardID );
 }
 
 namespace std {
